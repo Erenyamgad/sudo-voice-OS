@@ -1,4 +1,4 @@
-Sound-to-Text Project
+Sound-to-Text 
 
 Overview
 
