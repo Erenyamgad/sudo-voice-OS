@@ -1,52 +1,81 @@
-Sound-to-Text 
+# Text-to-Speech (TTS)
 
-Overview
+## 1. Overview
 
-This project is a Python-based speech-to-text application. It records audio from a microphone for 5 seconds and uses OpenAI Whisper to convert spoken English into text.
+This module converts text into speech using Piper TTS and plays the generated audio.
 
-Features
+## 2. Requirements
 
-- Records audio using a microphone.
-- Saves the recording as a WAV file.
-- Uses the Whisper Base model for speech recognition.
-- Displays the recognized text in the terminal.
-- Handles errors during recording and transcription.
+* Ubuntu
+* Python
+* Piper TTS version 1.8.0
+* FFmpeg
+* paplay (provided by `pulseaudio-utils` on Ubuntu)
+* Piper voice model and its JSON configuration file
 
-Technologies Used
+## 3. Installation
 
-- Python
-- PyAudio
-- OpenAI Whisper
-- Wave module
+### Step 1: Install the required system packages
 
-Requirements
+Open the Ubuntu Terminal and run:
 
-- Python
-- PyAudio
-- OpenAI Whisper
-- A working microphone
-- FFmpeg, as required by Whisper
+```bash
+sudo apt update
+sudo apt install ffmpeg pulseaudio-utils
+```
 
-Installation
+### Step 2: Set up the Python environment
 
-Install the required Python libraries:
+Open the project directory and create a virtual environment:
 
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install Piper TTS:
+
+```bash
 pip install -r requirements.txt
+```
 
-Make sure FFmpeg is installed on your system.
+### Step 3: Obtain the Voice Model Files
 
-How to Run
+The voice model files are not included in this GitHub repository because of their relatively large size.
 
-Run the following command in the terminal:
+To run the TTS module, obtain the following files separately and place them in the project directory:
 
-python sst.py
+* `en_US-lessac-medium.onnx`
+* `en_US-lessac-medium.onnx.json`
 
-Speak in English when prompted. The application records audio for 5 seconds and then displays the recognized text.
+Both files are required by Piper TTS to generate speech.
 
-Output
 
-The recorded audio is saved as "recording.wav", and the recognized text is displayed in the terminal.
+## 4. Running the Test
 
-Notes
+With the virtual environment activated, run:
 
-The application currently supports English speech recognition and uses the Whisper Base model.
+```bash
+python test_tts.py
+```
+
+The test script uses five example sentences to check that the text-to-speech module works correctly.
+
+## 5. Main Function
+
+The main function is:
+
+```python
+speak(text)
+```
+
+It receives a text string and performs the following operations:
+
+1. Uses Piper TTS to convert the text into speech.
+2. Saves the generated audio to a WAV file.
+3. Uses FFmpeg to add one second of silence at the beginning of the audio.
+4. Plays the resulting audio using `paplay`.
+
+## 6. Project Status
+
+The TTS module currently works independently and can speak English text. Integration with the other Voice OS project components will be completed later.
