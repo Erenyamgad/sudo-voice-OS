@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+TTS_backup.py
+TTS_piper_backup.py
+TTS_before_final.py
+TTS_project.zip
+piper_test.wav
+*.swp
