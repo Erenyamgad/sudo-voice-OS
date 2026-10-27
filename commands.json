@@ -1,0 +1,208 @@
+{
+  "version": "1.0",
+  "week": 4,
+  "module": "File & Application Management",
+  "author": "Mahmoud Hisham (352401058)",
+  "commands": [
+    {
+      "id": "CMD_01",
+      "intent": "create_folder",
+      "category": "file_management",
+      "voice_triggers": ["create folder", "make directory", "new folder"],
+      "handler_function": "create_folder(folder_name)",
+      "linux_command": "mkdir -p {folder_name}",
+      "parameters": ["folder_name"],
+      "description": "Creates a new directory in the current path."
+    },
+    {
+      "id": "CMD_02",
+      "intent": "remove_folder",
+      "category": "file_management",
+      "voice_triggers": ["delete folder", "remove directory", "remove folder"],
+      "handler_function": "remove_folder(folder_name)",
+      "linux_command": "rmdir {folder_name}",
+      "parameters": ["folder_name"],
+      "description": "Removes an empty directory safely."
+    },
+    {
+      "id": "CMD_03",
+      "intent": "list_files",
+      "category": "file_management",
+      "voice_triggers": ["list files", "show files", "what files are here"],
+      "handler_function": "list_files(path)",
+      "linux_command": "ls -la {path}",
+      "parameters": ["path"],
+      "description": "Lists all files and directories in the target directory."
+    },
+    {
+      "id": "CMD_04",
+      "intent": "create_file",
+      "category": "file_management",
+      "voice_triggers": ["create file", "make file", "new file", "touch file"],
+      "handler_function": "create_file(file_name)",
+      "linux_command": "touch {file_name}",
+      "parameters": ["file_name"],
+      "description": "Creates an empty file in the current directory."
+    },
+    {
+      "id": "CMD_05",
+      "intent": "delete_file",
+      "category": "file_management",
+      "voice_triggers": ["delete file", "remove file", "erase file"],
+      "handler_function": "delete_file(file_name)",
+      "linux_command": "rm {file_name}",
+      "parameters": ["file_name"],
+      "description": "Deletes a specific file after safety validation."
+    },
+    {
+      "id": "CMD_06",
+      "intent": "rename_item",
+      "category": "file_management",
+      "voice_triggers": ["rename file", "rename folder", "rename"],
+      "handler_function": "rename_item(old_name, new_name)",
+      "linux_command": "mv {old_name} {new_name}",
+      "parameters": ["old_name", "new_name"],
+      "description": "Renames a file or folder."
+    },
+    {
+      "id": "CMD_07",
+      "intent": "copy_file",
+      "category": "file_management",
+      "voice_triggers": ["copy file", "duplicate file"],
+      "handler_function": "copy_file(source, destination)",
+      "linux_command": "cp {source} {destination}",
+      "parameters": ["source", "destination"],
+      "description": "Copies a file from source to destination."
+    },
+    {
+      "id": "CMD_08",
+      "intent": "move_file",
+      "category": "file_management",
+      "voice_triggers": ["move file", "transfer file"],
+      "handler_function": "move_file(source, destination)",
+      "linux_command": "mv {source} {destination}",
+      "parameters": ["source", "destination"],
+      "description": "Moves a file or folder to a new destination."
+    },
+    {
+      "id": "CMD_09",
+      "intent": "read_file",
+      "category": "file_management",
+      "voice_triggers": ["read file", "show file content", "cat file"],
+      "handler_function": "read_file(file_name)",
+      "linux_command": "cat {file_name}",
+      "parameters": ["file_name"],
+      "description": "Displays the text content of a file."
+    },
+    {
+      "id": "CMD_10",
+      "intent": "search_files",
+      "category": "file_management",
+      "voice_triggers": ["find file", "search file", "locate file"],
+      "handler_function": "search_files(query)",
+      "linux_command": "find . -iname *{query}*",
+      "parameters": ["query"],
+      "description": "Searches for files matching the query in the current directory tree."
+    },
+    {
+      "id": "CMD_11",
+      "intent": "current_directory",
+      "category": "file_management",
+      "voice_triggers": ["current directory", "where am i", "print working directory"],
+      "handler_function": "get_current_directory()",
+      "linux_command": "pwd",
+      "parameters": [],
+      "description": "Returns the current working directory path."
+    },
+    {
+      "id": "CMD_12",
+      "intent": "file_info",
+      "category": "file_management",
+      "voice_triggers": ["file size", "file info", "file details"],
+      "handler_function": "get_file_info(file_name)",
+      "linux_command": "stat {file_name}",
+      "parameters": ["file_name"],
+      "description": "Displays size and metadata of a file."
+    },
+    {
+      "id": "CMD_13",
+      "intent": "open_browser",
+      "category": "application_management",
+      "voice_triggers": ["open browser", "launch browser", "open firefox", "start firefox"],
+      "handler_function": "open_application('firefox')",
+      "linux_command": "firefox",
+      "parameters": ["app_name"],
+      "description": "Launches the default Ubuntu web browser (Firefox)."
+    },
+    {
+      "id": "CMD_14",
+      "intent": "open_text_editor",
+      "category": "application_management",
+      "voice_triggers": ["open text editor", "open editor", "launch gedit", "open notepad"],
+      "handler_function": "open_application('gedit')",
+      "linux_command": "gedit",
+      "parameters": ["app_name"],
+      "description": "Launches the GNOME text editor."
+    },
+    {
+      "id": "CMD_15",
+      "intent": "open_calculator",
+      "category": "application_management",
+      "voice_triggers": ["open calculator", "launch calculator", "start calculator"],
+      "handler_function": "open_application('gnome-calculator')",
+      "linux_command": "gnome-calculator",
+      "parameters": ["app_name"],
+      "description": "Launches the Ubuntu calculator application."
+    },
+    {
+      "id": "CMD_16",
+      "intent": "open_file_manager",
+      "category": "application_management",
+      "voice_triggers": ["open file manager", "open files", "open nautilus", "explore files"],
+      "handler_function": "open_application('nautilus')",
+      "linux_command": "nautilus .",
+      "parameters": ["app_name"],
+      "description": "Opens the Ubuntu graphical file manager (Nautilus)."
+    },
+    {
+      "id": "CMD_17",
+      "intent": "open_terminal",
+      "category": "application_management",
+      "voice_triggers": ["open terminal", "launch terminal", "new terminal"],
+      "handler_function": "open_application('gnome-terminal')",
+      "linux_command": "gnome-terminal",
+      "parameters": ["app_name"],
+      "description": "Opens a new GNOME terminal window."
+    },
+    {
+      "id": "CMD_18",
+      "intent": "open_settings",
+      "category": "application_management",
+      "voice_triggers": ["open settings", "system settings", "control center"],
+      "handler_function": "open_application('gnome-control-center')",
+      "linux_command": "gnome-control-center",
+      "parameters": ["app_name"],
+      "description": "Opens the Ubuntu system settings panel."
+    },
+    {
+      "id": "CMD_19",
+      "intent": "close_application",
+      "category": "application_management",
+      "voice_triggers": ["close application", "close app", "kill app", "close firefox", "close calculator", "close editor"],
+      "handler_function": "close_application(app_name)",
+      "linux_command": "pkill -f {app_name}",
+      "parameters": ["app_name"],
+      "description": "Closes a running application by name."
+    },
+    {
+      "id": "CMD_20",
+      "intent": "list_running_apps",
+      "category": "application_management",
+      "voice_triggers": ["running applications", "list running apps", "active processes", "what apps are open"],
+      "handler_function": "list_running_apps()",
+      "linux_command": "ps -e -o comm=",
+      "parameters": [],
+      "description": "Lists currently running user applications and processes."
+    }
+  ]
+}
