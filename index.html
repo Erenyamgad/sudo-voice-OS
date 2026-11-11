@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudo Voice OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E8ECF0; --panel:#F7F9FA; --ink:#121C26; --muted:#5B6874; --line:#C9D1D8;
+  --signal:#1F4FE0; --rec:#D8322B; --ok:#1E7B4F; --warn:#9A5B00;
+  --term:#131B24; --term-ink:#DCE6EF;
+  --sans:"Schibsted Grotesk",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans);min-height:100vh}
+.wrap{max-width:1040px;margin:0 auto;padding:32px 20px 48px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+h1{font-size:28px;line-height:1.1;margin:0;font-weight:700;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:14px}
+.meta b{color:var(--ink);font-weight:500}
+main{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:28px;align-items:start}
+@media(max-width:780px){main{grid-template-columns:1fr}}
+
+/* voice column */
+.voice{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px 20px;text-align:center}
+.mic{--level:0;position:relative;width:132px;height:132px;border-radius:50%;border:0;background:var(--signal);color:#fff;cursor:pointer;
+  display:grid;place-items:center;margin:8px auto 18px;transition:background .2s}
+.mic::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--rec);opacity:.25;
+  transform:scale(calc(1 + var(--level)*.7));transition:transform .08s linear;z-index:-1}
+.mic svg{width:44px;height:44px}
+.mic.recording{background:var(--rec)}
+.mic.busy{background:var(--muted);cursor:progress}
+.mic:focus-visible,button:focus-visible,input:focus-visible,.chip:focus-visible{outline:3px solid #7FA0FF;outline-offset:3px}
+.state{font-weight:500;min-height:24px}
+.hint{color:var(--muted);font-size:14px;margin:4px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.chip{font:500 13px var(--mono);padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
+.chip:hover{border-color:var(--signal);color:var(--signal)}
+.auto{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:22px;font-size:14px;color:var(--muted)}
+
+/* pipeline column */
+.flow{position:relative;display:grid;gap:22px;padding-left:28px}
+.flow::before{content:"";position:absolute;left:8px;top:10px;bottom:10px;width:2px;background:var(--line)}
+.stage{position:relative}
+.stage::before{content:"";position:absolute;left:-26px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--line)}
+.stage.on::before{border-color:var(--signal);background:var(--signal)}
+.stage h2{font-size:15px;font-weight:700;margin:0 0 8px}
+.row{display:flex;gap:8px}
+input[type=text]{flex:1;font:16px var(--sans);padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);min-width:0}
+button.btn{font:500 15px var(--sans);padding:11px 16px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}
+button.btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+button.btn:disabled{opacity:.4;cursor:not-allowed}
+.cmd{font:500 17px var(--mono);background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;min-height:50px;word-break:break-all}
+.cmd .p{color:var(--signal)}
+.cmd.empty{color:var(--muted);font:15px var(--sans)}
+.cmd.err{color:var(--warn)}
+.runrow{margin-top:10px}
+pre.term{margin:0;background:var(--term);color:var(--term-ink);font:400 13.5px/1.5 var(--mono);border-radius:10px;padding:14px;
+  min-height:140px;max-height:420px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.term .c{color:#7FA0FF}.term .bad{color:#FF8A80}.term .dim{color:#8A98A6}
+@media(prefers-reduced-motion:reduce){.mic,.mic::before{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sudo Voice OS</h1>
+    <div class="meta">Running on <b>{{ os_name }}</b> &middot; commands run in <b>{{ workspace }}</b></div>
+  </header>
+
+  <main>
+    <section class="voice" aria-label="Voice input">
+      <button id="mic" class="mic" aria-label="Start recording">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+      <div id="state" class="state" role="status" aria-live="polite">Press the mic and speak</div>
+      <p class="hint">Click again to stop. Recording stops by itself after 15 seconds.</p>
+      <div class="chips" id="chips">
+        <button class="chip" data-t="list files">list files</button>
+        <button class="chip" data-t="create folder demo">create folder demo</button>
+        <button class="chip" data-t="system info">system info</button>
+        <button class="chip" data-t="who am i">who am i</button>
+        <button class="chip" data-t="network info">network info</button>
+        <button class="chip" data-t="current directory">current directory</button>
+        <button class="chip" data-t="disk space">disk space</button>
+      </div>
+      <label class="auto"><input type="checkbox" id="auto"> Run right after recognizing</label>
+    </section>
+
+    <section class="flow" aria-label="Pipeline">
+      <div class="stage" id="s1">
+        <h2>What I heard</h2>
+        <div class="row">
+          <input type="text" id="text" placeholder="Or type a command, e.g. list files" autocomplete="off">
+          <button class="btn ghost" id="parse">Parse</button>
+        </div>
+      </div>
+
+      <div class="stage" id="s2">
+        <h2>Terminal command</h2>
+        <div class="cmd empty" id="cmd">Nothing yet. Speak or pick an example.</div>
+        <div class="runrow"><button class="btn" id="run" disabled>Run command</button></div>
+      </div>
+
+      <div class="stage" id="s3">
+        <h2>Output</h2>
+        <pre class="term" id="term"><span class="dim">Output appears here.</span></pre>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const mic = $("#mic"), stateEl = $("#state"), textEl = $("#text"), cmdEl = $("#cmd"),
+      runBtn = $("#run"), term = $("#term");
+let current = null, recorder = null, stream = null, chunks = [], ctx = null, raf = 0, stopTimer = 0;
+
+const setState = m => stateEl.textContent = m;
+const mark = (id, on) => $(id).classList.toggle("on", on);
+
+async function api(url, body){
+  const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  return r.json();
+}
+
+/* ---------- recording ---------- */
+async function toggleRecord(){
+  if (recorder && recorder.state === "recording") { recorder.stop(); return; }
+  if (mic.classList.contains("busy")) return;
+  try { stream = await navigator.mediaDevices.getUserMedia({audio:true}); }
+  catch { setState("Microphone blocked. Allow it in the address bar and try again."); return; }
+
+  const mime = ["audio/webm;codecs=opus","audio/webm","audio/ogg","audio/mp4"].find(m => MediaRecorder.isTypeSupported(m));
+  recorder = new MediaRecorder(stream, mime ? {mimeType:mime} : {});
+  chunks = [];
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = onStopped;
+  recorder.start();
+
+  ctx = new AudioContext();
+  const an = ctx.createAnalyser(); an.fftSize = 512;
+  ctx.createMediaStreamSource(stream).connect(an);
+  const buf = new Uint8Array(an.fftSize);
+  (function loop(){
+    an.getByteTimeDomainData(buf);
+    let sum = 0; for (const v of buf) sum += ((v-128)/128)**2;
+    mic.style.setProperty("--level", Math.min(1, Math.sqrt(sum/buf.length)*4).toFixed(2));
+    raf = requestAnimationFrame(loop);
+  })();
+
+  mic.classList.add("recording"); mic.setAttribute("aria-label","Stop recording");
+  setState("Listening...");
+  stopTimer = setTimeout(() => recorder.state === "recording" && recorder.stop(), 15000);
+}
+
+async function onStopped(){
+  clearTimeout(stopTimer); cancelAnimationFrame(raf);
+  stream.getTracks().forEach(t => t.stop()); ctx && ctx.close();
+  mic.style.setProperty("--level", 0);
+  mic.classList.remove("recording"); mic.classList.add("busy");
+  mic.setAttribute("aria-label","Start recording");
+  setState("Transcribing with Whisper... (first time loads the model)");
+
+  const fd = new FormData();
+  fd.append("audio", new Blob(chunks, {type: recorder.mimeType}), "rec");
+  try {
+    const r = await fetch("/api/transcribe", {method:"POST", body:fd});
+    const j = await r.json();
+    if (j.error) { setState(j.error); return; }
+    if (!j.text) { setState("No speech recognized. Try again, a little closer to the mic."); return; }
+    textEl.value = j.text;
+    setState("Done.");
+    await parseText();
+  } catch (e) {
+    setState("Could not reach the server. Is main.py still running?");
+  } finally {
+    mic.classList.remove("busy");
+  }
+}
+
+/* ---------- parse + run ---------- */
+async function parseText(){
+  const text = textEl.value.trim();
+  if (!text) return;
+  mark("#s1", true);
+  const j = await api("/api/parse", {text});
+  if (j.understood) {
+    current = {intent:j.intent, args:j.args};
+    cmdEl.className = "cmd";
+    cmdEl.innerHTML = '<span class="p">$ </span>';
+    cmdEl.append(document.createTextNode(j.command));
+    runBtn.disabled = false; mark("#s2", true);
+    if ($("#auto").checked) run();
+  } else {
+    current = null; runBtn.disabled = true; mark("#s2", false);
+    cmdEl.className = "cmd empty err";
+    cmdEl.textContent = j.message + " Try: list files, create folder NAME, system info.";
+  }
+}
+
+async function run(){
+  if (!current) return;
+  runBtn.disabled = true; mark("#s3", true);
+  const j = await api("/api/execute", current);
+  if (term.querySelector(".dim") && term.children.length === 1) term.textContent = "";
+  const head = document.createElement("span"); head.className = "c"; head.textContent = "$ " + j.command + "\n";
+  const body = document.createElement("span"); if (!j.ok) body.className = "bad"; body.textContent = j.output + "\n\n";
+  term.append(head, body); term.scrollTop = term.scrollHeight;
+  runBtn.disabled = false;
+}
+
+mic.addEventListener("click", toggleRecord);
+$("#parse").addEventListener("click", parseText);
+textEl.addEventListener("keydown", e => e.key === "Enter" && parseText());
+runBtn.addEventListener("click", run);
+$("#chips").addEventListener("click", e => {
+  const t = e.target.dataset.t; if (!t) return;
+  textEl.value = t; parseText();
+});
+</script>
+</body>
+</html>
