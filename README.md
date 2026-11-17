@@ -1,32 +1,36 @@
-# Text-to-Speech (TTS)
+# Text-to-Speech (TTS) Module
 
 ## 1. Overview
 
-This module converts text into speech using Piper TTS and plays the generated audio.
+This module converts English text into speech using Piper TTS and plays the generated audio locally on Ubuntu. It works offline using a local voice model.
 
-## 2. Requirements
+## 2. Tools and Technologies
 
-* Ubuntu
-* Python
-* Piper TTS version 1.8.0
-* FFmpeg
-* paplay (provided by `pulseaudio-utils` on Ubuntu)
-* Piper voice model and its JSON configuration file
+- **Python 3:** Main programming language.
+- **Piper TTS 1.8.0:** Converts text into speech using a neural ONNX voice model.
+- **Subprocess:** Executes Piper, FFmpeg, and paplay commands.
+- **Threading:** Uses `threading.Lock` to prevent overlapping TTS operations.
+- **Pathlib:** Handles file paths.
+- **FFmpeg:** Adds 500 milliseconds of silence and configures the audio format.
+- **paplay:** Plays the generated WAV audio.
 
-## 3. Installation
+## 3. Requirements and Installation
 
-### Step 1: Install the required system packages
+Required tools:
+- Ubuntu
+- Python 3
+- FFmpeg
+- paplay (`pulseaudio-utils`)
+- Piper TTS 1.8.0
 
-Open the Ubuntu Terminal and run:
+Install the system packages:
 
 ```bash
 sudo apt update
-sudo apt install ffmpeg pulseaudio-utils
+sudo apt install ffmpeg pulseaudio-utils python3-venv
 ```
 
-### Step 2: Set up the Python environment
-
-Open the project directory and create a virtual environment:
+Create and activate a virtual environment:
 
 ```bash
 python3 -m venv venv
@@ -39,29 +43,36 @@ Install Piper TTS:
 pip install -r requirements.txt
 ```
 
-### Step 3: Obtain the Voice Model Files
+The `requirements.txt` file contains:
 
-The voice model files are not included in this GitHub repository because of their relatively large size.
+```text
+piper-tts==1.8.0
+```
 
-To run the TTS module, obtain the following files separately and place them in the project directory:
+## 4. Voice Model Setup
 
-* `en_US-lessac-medium.onnx`
-* `en_US-lessac-medium.onnx.json`
+The following files are required:
 
-Both files are required by Piper TTS to generate speech.
+- `en_US-lessac-medium.onnx`
+- `en_US-lessac-medium.onnx.json`
 
+They are not included in the GitHub repository because of their large size. They must be downloaded separately and placed inside:
 
-## 4. Running the Test
+```text
+~/voice_os_audio/
+```
 
-With the virtual environment activated, run:
+## 5. Running the Test
+
+After activating the virtual environment and preparing the voice model, run:
 
 ```bash
 python test_tts.py
 ```
 
-The test script uses five example sentences to check that the text-to-speech module works correctly.
+The test script uses five example sentences to check the TTS functionality.
 
-## 5. Main Function
+## 6. Main Function and Implementation
 
 The main function is:
 
@@ -69,13 +80,18 @@ The main function is:
 speak(text)
 ```
 
-It receives a text string and performs the following operations:
+It performs the following operations:
 
-1. Uses Piper TTS to convert the text into speech.
-2. Saves the generated audio to a WAV file.
-3. Uses FFmpeg to add one second of silence at the beginning of the audio.
-4. Plays the resulting audio using `paplay`.
+1. Checks and cleans the input text.
+2. Uses Piper TTS to generate speech.
+3. Saves the generated audio as a WAV file.
+4. Uses FFmpeg with `adelay=500|500` to add 500 milliseconds of silence at the beginning.
+5. Uses `-ar 22050` to set the sample rate to 22050 Hz.
+6. Uses `-ac 1` to set the audio output to mono (one channel).
+7. Uses `paplay` to play the final audio.
 
-## 6. Project Status
+The function also uses a thread lock to prevent overlapping playback and exception handling to report runtime errors.
 
-The TTS module currently works independently and can speak English text. Integration with the other Voice OS project components will be completed later.
+## 7. Project Status
+
+The TTS module currently works independently and supports English text-to-speech conversion. Integration with the other Voice OS components will be completed later.
